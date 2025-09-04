@@ -6,16 +6,15 @@ import numpy as np
 
 # ---- CONFIG ----
 st.set_page_config(page_title="Institute Projects", layout="wide")
-st.title("📊 JSI Long-term Projects Plan")
+st.title("📊 Projekti odseka za Reaktorsko fiziko F8")
 st.markdown("""
-This dashboard visualizes institute project activities using data from a [shared Google Sheet](https://docs.google.com/spreadsheets/d/1qBKlVTh3_U3Mk6OsBPRnTjrJEmg9VC2KU6BjlIj1yUo/edit?usp=sharing).
-Projects are displayed in a Cost vs. Time plot, with each department represented by an unique color.  
-You can filter by specific departments.  
-If points overlap, increase the separation radius (left sidebar) to spread them apart.  
-Below the plot, you can view the raw data table.
-If any errors arise, please contact [blaz.levpuscek@ijs.si](mailto:blaz.levpuscek@ijs.si).
+Stran prikazuje projekte odseka F8 z uporabo podatkov iz [Google preglednice](https://docs.google.com/spreadsheets/d/1tUAJO-4-rdmnmL4nGlJyuT4PfPPeksi1rc1ArAmRqQ4/edit?usp=sharing).
+Projekti so prikazani na grafikonu Budget vs Time, pri čemer je vsak raziskovalec predstavljen z drugačno barvo.
+Možno je filtriranje po posameznih raziskovalcih.
+Če se točke prekrivajo, povečajte radij razmika (na levi stranski vrstici).
+Pod grafom je tabela s podatki iz Google preglednice.
+Napake prosim sporočite na [blaz.levpuscek@ijs.si](mailto:blaz.levpuscek@ijs.si)
 """)
-
 
 def parse_euro_number(val):
     """
@@ -37,9 +36,8 @@ def parse_euro_number(val):
         return float('nan')
 
 
-
 # ---- SHEET CONFIG ----
-SHEET_ID = "1qBKlVTh3_U3Mk6OsBPRnTjrJEmg9VC2KU6BjlIj1yUo"
+SHEET_ID = "1tUAJO-4-rdmnmL4nGlJyuT4PfPPeksi1rc1ArAmRqQ4"
 SHEET_NAME = "AllData"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}"
 
@@ -49,7 +47,7 @@ if st.button("🔄 Update plot from Google Sheet"):
 @st.cache_data(ttl=0)
 def load_data():
     df = pd.read_csv(CSV_URL)
-    df = df.dropna(subset=["Project", "Time [years]", "Cost [k€]", "Department"])
+    df = df.dropna(subset=["Project", "Time [years]", "Cost [k€]", "Researcher"])
     df["Time (years)"] = pd.to_numeric(df["Time [years]"], errors="coerce")
     df["Cost (k€)"] = df["Cost [k€]"].apply(parse_euro_number)
     df["Cost (€)"] = df["Cost (k€)"] * 1000
@@ -63,18 +61,18 @@ if st.session_state.get("refresh", False):
 data = load_data()
 
 # ---- FILTERS ----
-departments = data["Department"].unique().tolist()
-selected_departments = st.multiselect("Filter by Department", departments, default=departments)
-filtered = data[data["Department"].isin(selected_departments)]
+departments = data["Researcher"].unique().tolist()
+selected_departments = st.multiselect("Filtriraj po raziskovalcih", departments, default=departments)
+filtered = data[data["Researcher"].isin(selected_departments)]
 
 # ---- SLIDER FOR SEPARATION RADIUS ----
 radius = st.sidebar.slider(
-    "Department separation radius (log-units, higher = wider spread)", 
+    "Radij razmika (log-units, višje = bolj razpršene točke)", 
     min_value=0.00, max_value=0.05, value=0.01, step=0.005
 )
 
 # ---- COLOR MAP ----
-department_list = list(filtered["Department"].unique())
+department_list = list(filtered["Researcher"].unique())
 color_palette = px.colors.qualitative.Light24
 color_map = {dept: color_palette[i % len(color_palette)] for i, dept in enumerate(department_list)}
 
@@ -86,7 +84,7 @@ angles = {dept: 2 * np.pi * i / n_dept for i, dept in enumerate(sorted(departmen
 fig = go.Figure()
 
 for dept in department_list:
-    df_dept = filtered[filtered["Department"] == dept]
+    df_dept = filtered[filtered["Researcher"] == dept]
     if df_dept.empty:
         continue
 
@@ -158,8 +156,8 @@ for dept in department_list:
         ))
 
 fig.update_layout(
-    xaxis=dict(title="Time (years)", type="log"),
-    yaxis=dict(title="Cost (€)", type="log"),
+    xaxis=dict(title="Time [years]", type="log"),
+    yaxis=dict(title="Budget [€]", type="log"),
     height=700
 )
 
@@ -168,7 +166,7 @@ if len(fig.data) == 0:
 else:
     st.plotly_chart(fig, use_container_width=True)
 
-columns_to_show = [col for col in ["Project", "Time [years]", "Cost [k€]", "Department", "Description", "Longer description"] if col in filtered.columns]
-with st.expander("🔍 View Raw Data Table", expanded=True):
+columns_to_show = [col for col in ["Project", "Time [years]", "Cost [k€]", "Researcher", "Description", "Longer description"] if col in filtered.columns]
+with st.expander("🔍 Tabela podatkov", expanded=True):
     st.dataframe(filtered[columns_to_show])
 
