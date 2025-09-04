@@ -5,14 +5,14 @@ import plotly.express as px
 import numpy as np
 
 # ---- CONFIG ----
-st.set_page_config(page_title="Institute Projects", layout="wide")
+st.set_page_config(page_title="Odsek F8", layout="wide")
 st.title("📊 Projekti odseka za Reaktorsko fiziko F8")
 st.markdown("""
-Stran prikazuje projekte odseka F8 z uporabo podatkov iz [Google preglednice](https://docs.google.com/spreadsheets/d/1tUAJO-4-rdmnmL4nGlJyuT4PfPPeksi1rc1ArAmRqQ4/edit?usp=sharing).
-Projekti so prikazani na grafikonu Budget vs Time, pri čemer je vsak raziskovalec predstavljen z drugačno barvo.
-Možno je filtriranje po posameznih raziskovalcih.
-Če se točke prekrivajo, povečajte radij razmika (na levi stranski vrstici).
-Pod grafom je tabela s podatki iz Google preglednice.
+Stran prikazuje projekte odseka F8 z uporabo podatkov iz [Google preglednice](https://docs.google.com/spreadsheets/d/1tUAJO-4-rdmnmL4nGlJyuT4PfPPeksi1rc1ArAmRqQ4/edit?usp=sharing).\n
+Projekti so prikazani na grafikonu Budget vs Time, pri čemer je vsak raziskovalec predstavljen z drugačno barvo.\n
+Možno je filtriranje po posameznih raziskovalcih.\n
+Če se točke prekrivajo, povečajte radij razmika (na levi stranski vrstici).\n
+Pod grafom je tabela s podatki iz Google preglednice.\n
 Napake prosim sporočite na [blaz.levpuscek@ijs.si](mailto:blaz.levpuscek@ijs.si)
 """)
 
@@ -41,7 +41,7 @@ SHEET_ID = "1tUAJO-4-rdmnmL4nGlJyuT4PfPPeksi1rc1ArAmRqQ4"
 SHEET_NAME = "AllData"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}"
 
-if st.button("🔄 Update plot from Google Sheet"):
+if st.button("🔄 Posodobi podatke"):
     st.session_state["refresh"] = True
 
 @st.cache_data(ttl=0)
